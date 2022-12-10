@@ -1,13 +1,15 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { Button, StyleSheet, Text, View, ScrollView, Vibration, Alert } from 'react-native';
+import { Button, StyleSheet, Text, View, ScrollView, Vibration, Alert, Touchable, TouchableOpacity } from 'react-native';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { render } from 'react-dom';
 import { LinearGradient } from 'expo-linear-gradient';
 import NfcManager, {NfcTech, Ndef} from 'react-native-nfc-manager';
+import { createAppContainer } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack';
 
-export default class App extends React.Component {
+class HomeScreen extends React.Component {
   
   
   state = {
@@ -47,6 +49,7 @@ export default class App extends React.Component {
   }
   nfcRead = async () => {
     try {
+      Alert.alert("NFC 리딩중...");
       await NfcManager.requestTechnology(NfcTech.Ndef);
       const tag = await NfcManager.getTag();
       const parsed = tag.ndefMessage.map(decodeNdefRecord);
@@ -89,7 +92,7 @@ export default class App extends React.Component {
             warn.push("대두가 "+food+"에서 검출되었어요!")
           }
           if (allergy=="돼지고기" && this.state.pig==true) {
-            warn.push("돼지고기 "+food+"에서 검출되었어요!")
+            warn.push("돼지고기가 "+food+"에서 검출되었어요!")
           }
           if (allergy=="복숭아" && this.state.peach==true) {
             warn.push("복숭아가 "+food+"에서 검출되었어요!")
@@ -127,26 +130,31 @@ export default class App extends React.Component {
         }
       }
       warn.sort();
-      Alert.alert("알레르기 검출!",warn.join("\n"));
+      if(warn.length==0) {
+        Alert.alert("알레르기 식품이 없습니다! :)");
+      }
+      else {
+        Alert.alert("알레르기 검출!",warn.join("\n\n"));
+      }
       Vibration.vibrate(400);
+      NfcManager.cancelTechnologyRequest().catch(() => 0);
   } catch (ex) {
       this.setState({
           log: ex.toString()
       })
-      NfcManager.cancelTechnologyRequest().catch(() => 0);
+      
   }
 }
   render() {
     return (
-      <LinearGradient colors={['#FFA296', '#FFC7BF', '#FFD4CE']} style={styles.container}>
+      <LinearGradient colors={['#FFAC9B', '#FFC7BF', '#FFD4CE']} style={styles.container}>
+          <TouchableOpacity style={styles.button}
+                 onPress={() => {
+                  this.nfcRead(); //"칸타타프리미엄라떼&우유/"
+                }}>
+                  <Text style={styles.text}>NFC</Text>
+          </TouchableOpacity>
           <View style={styles.border}>
-            <Button
-              title="NFC"
-              color="#FF6666"
-              onPress={() => {
-                this.nfcRead(); //"칸타타프리미엄라떼&우유/"
-            }}
-            />
             <ScrollView style={styles.scrollw}>
               <BouncyCheckbox
                 size={35}
@@ -457,6 +465,9 @@ export default class App extends React.Component {
             <View style={styles.banner}>
               <Text style={{fontSize:19, fontWeight:'bold', color:'#FFEFEF'}}>{"\n"}당신의 알레르기 정보를 입력하여 주세요.</Text>
             </View>
+            <Button
+              title = 'Go detail screen'
+              onPress = {()=>this.props.navigation.navigate('Details')}/>
         </View>        
       </LinearGradient> 
     );
@@ -508,6 +519,18 @@ export default class App extends React.Component {
   }
 }
 
+class DetailsScreen extends React.Component {
+  render() {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Text>Seonoh Detail Screen</Text>
+        <Button
+          title = 'Go Home screen'
+          onPress = {()=>this.props.navigation.navigate('Home')}/>
+      </View>
+    );
+  }
+}
 
 
 
@@ -520,16 +543,22 @@ const styles = StyleSheet.create({
   },
   border: {
     flex: 1,
-    margin: 15,
-    marginTop: 20,
+    marginLeft: 10,
+    marginBottom: 10,
+    marginRight: 10,
     borderRadius: 20,
-    backgroundColor: '#FFEAE2',
+    backgroundColor: '#FFF6F4',
+    shadowColor: 'rgba(0, 0, 0, 0.1)',
+    shadowOpacity: 0.8,
+    elevation: 20,
+    shadowRadius: 15 ,
+    shadowOffset : { width: 1, height: 13},
   },
   banner: {
     flexBasis:80,
     minHeight: 1,
     alignItems: 'center',
-    backgroundColor: '#FFA99E',
+    backgroundColor: '#FF6666',
     borderBottomRightRadius: 20,
     borderBottomLeftRadius: 20
   },
@@ -539,4 +568,36 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginBottom: 10
   },
+  button : {
+    backgroundColor: "#FF6666",
+    borderRadius: 10,
+    margin: 10,
+    marginBottom: 5,
+    height: 40,
+    shadowColor: 'rgba(0, 0, 0, 0.1)',
+    shadowOpacity: 0.8,
+    elevation: 12,
+    shadowRadius: 15 ,
+    shadowOffset : { width: 1, height: 13},
+  },
+  text : {
+    textAlign: 'center',
+    fontSize: 24,
+    color: "white",
+    justifyContent: "center",
+    alignItems: "center"
+  }
 });
+
+const AppNavigator = createStackNavigator(
+  {
+    Home: HomeScreen,
+    Details: DetailsScreen
+  },
+  {
+    initialRouteName: 'Home',
+    headerShown: false,
+  },
+);
+ 
+export default createAppContainer(AppNavigator);
