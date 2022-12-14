@@ -9,6 +9,25 @@ import NfcManager, {NfcTech, Ndef} from 'react-native-nfc-manager';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
+const Excel = require('exceljs');
+const workbook = new Excel.Workbook();
+
+workbook.creator = '작성자';
+workbook.lastModifiedBy = '최종 수정자';
+workbook.created = new Date();
+workbook.modified = new Date();
+
+workbook.addWorksheet('Sheet One');
+workbook.addWorksheet('Sheet Two');
+workbook.addWorksheet('Sheet Three');
+
+const sheetOne = workbook.getWorksheet('Sheet One');
+sheetOne.columns = [
+  {header: 'ingredient', key: 'i', width: 40},
+  {header: 'counts', key: 'c', width: 40},
+  {header: 'reactions', key: 'r', width:40},
+]
+
 class HomeScreen extends React.Component {
   
   
@@ -47,6 +66,38 @@ class HomeScreen extends React.Component {
       console.log(this.state)
     });
   }
+  excel = async (prdnm) => {
+    var xhr = new XMLHttpRequest();
+    var url = 'http://apis.data.go.kr/B553748/CertImgListService/getCertImgListService'; /URL/
+    var queryParams = '?' + encodeURIComponent('serviceKey') + '='+'4Es3IAYWvtEjQloH9aZivTA0FhZMzBQbDRsGvzwvSpWjQfBd%2BGkPTUj7TNeAltYbfnkZd%2BMPvvlwmdYPH%2FC%2BXw%3D%3D'; /Service Key/
+    queryParams += '&' + encodeURIComponent('prdlstReportNo') + '=' + encodeURIComponent(prdnm); //
+    queryParams += '&' + encodeURIComponent('returnType') + '=' + encodeURIComponent('xml'); //
+    queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); //
+    queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('10'); /**/
+    xhr.open('GET', url + queryParams);
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4) {
+          var rawmtrl = (this.responseText).split("<rawmtrl>")[1].split("</rawmtrl>")[0].trim();
+          rawmtrl = rawmtrl.replace(/\{[^}]*/g, "").replace(/[}]*/g, "").replace(/\([^)]*/g, "").replace(/[)]*/g, "").replace(/[^a-zA-Zㄱ-힣,]/g, "");
+          rawmtrl = rawmtrl.split(",");
+          rawmtrl.forEach(element => {
+            var temp = 0;
+            sheetOne.eachRow((row) => {
+              if (row.getCell('i').value==element) {
+                row.getCell('c').value += 1
+                temp = 1;
+              }
+            })
+            if (temp==0) {
+              sheetOne.addRow({i:element, c:1, r:0})
+            }
+          });
+          sheetOne.eachRow((row) => {
+            console.log(row.values)
+          })
+        }
+    };
+  }
   nfcRead = async () => {
     try {
       Alert.alert("NFC 리딩중...");
@@ -68,6 +119,8 @@ class HomeScreen extends React.Component {
         }
         var food = item.split('&')[0];
         var alles = item.split('&')[1].split(', ');
+        var prdnm = item.split('&')[2];
+        this.excel(prdnm);
         for (var allergy of alles) {
           console.log(allergy);
           if (allergy=="계란" && this.state.egg==true) {
