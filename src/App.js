@@ -1,36 +1,14 @@
-import React from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { Button, StyleSheet, Text, View, ScrollView, Vibration, Alert, Touchable, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, Vibration, Alert, TouchableOpacity, FlatList, Button } from 'react-native';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { render } from 'react-dom';
-import { LinearGradient } from 'expo-linear-gradient';
 import NfcManager, {NfcTech, Ndef} from 'react-native-nfc-manager';
-import { createAppContainer } from 'react-navigation';
-import { createStackNavigator } from 'react-navigation-stack';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-const Excel = require('exceljs');
-const workbook = new Excel.Workbook();
+function HomeScreen( {navigation} ){
+  const [foodList, setFoodList] = useState(['']);
 
-workbook.creator = '작성자';
-workbook.lastModifiedBy = '최종 수정자';
-workbook.created = new Date();
-workbook.modified = new Date();
-
-workbook.addWorksheet('Sheet One');
-workbook.addWorksheet('Sheet Two');
-workbook.addWorksheet('Sheet Three');
-
-const sheetOne = workbook.getWorksheet('Sheet One');
-sheetOne.columns = [
-  {header: 'ingredient', key: 'i', width: 40},
-  {header: 'counts', key: 'c', width: 40},
-  {header: 'reactions', key: 'r', width:40},
-]
-
-class HomeScreen extends React.Component {
-  
-  
   state = {
     "egg" : false,
     "cow" : false,
@@ -66,38 +44,6 @@ class HomeScreen extends React.Component {
       console.log(this.state)
     });
   }
-  excel = async (prdnm) => {
-    var xhr = new XMLHttpRequest();
-    var url = 'http://apis.data.go.kr/B553748/CertImgListService/getCertImgListService'; /URL/
-    var queryParams = '?' + encodeURIComponent('serviceKey') + '='+'4Es3IAYWvtEjQloH9aZivTA0FhZMzBQbDRsGvzwvSpWjQfBd%2BGkPTUj7TNeAltYbfnkZd%2BMPvvlwmdYPH%2FC%2BXw%3D%3D'; /Service Key/
-    queryParams += '&' + encodeURIComponent('prdlstReportNo') + '=' + encodeURIComponent(prdnm); //
-    queryParams += '&' + encodeURIComponent('returnType') + '=' + encodeURIComponent('xml'); //
-    queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); //
-    queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('10'); /**/
-    xhr.open('GET', url + queryParams);
-    xhr.onreadystatechange = function () {
-        if (this.readyState == 4) {
-          var rawmtrl = (this.responseText).split("<rawmtrl>")[1].split("</rawmtrl>")[0].trim();
-          rawmtrl = rawmtrl.replace(/\{[^}]*/g, "").replace(/[}]*/g, "").replace(/\([^)]*/g, "").replace(/[)]*/g, "").replace(/[^a-zA-Zㄱ-힣,]/g, "");
-          rawmtrl = rawmtrl.split(",");
-          rawmtrl.forEach(element => {
-            var temp = 0;
-            sheetOne.eachRow((row) => {
-              if (row.getCell('i').value==element) {
-                row.getCell('c').value += 1
-                temp = 1;
-              }
-            })
-            if (temp==0) {
-              sheetOne.addRow({i:element, c:1, r:0})
-            }
-          });
-          sheetOne.eachRow((row) => {
-            console.log(row.values)
-          })
-        }
-    };
-  }
   nfcRead = async () => {
     try {
       Alert.alert("NFC 리딩중...");
@@ -118,9 +64,8 @@ class HomeScreen extends React.Component {
           continue;
         }
         var food = item.split('&')[0];
+        setFoodList([...foodList, food]);
         var alles = item.split('&')[1].split(', ');
-        var prdnm = item.split('&')[2];
-        this.excel(prdnm);
         for (var allergy of alles) {
           console.log(allergy);
           if (allergy=="계란" && this.state.egg==true) {
@@ -196,14 +141,13 @@ class HomeScreen extends React.Component {
           log: ex.toString()
       })
       
+    }
   }
-}
-  render() {
-    return (
-      <LinearGradient colors={['#FFAC9B', '#FFC7BF', '#FFD4CE']} style={styles.container}>
+  return (
+      <View style={styles.container}>
           <TouchableOpacity style={styles.button}
                  onPress={() => {
-                  this.nfcRead(); //"칸타타프리미엄라떼&우유/"
+                  this.nfcRead();
                 }}>
                   <Text style={styles.text}>NFC</Text>
           </TouchableOpacity>
@@ -518,79 +462,64 @@ class HomeScreen extends React.Component {
             <View style={styles.banner}>
               <Text style={{fontSize:19, fontWeight:'bold', color:'#FFEFEF'}}>{"\n"}당신의 알레르기 정보를 입력하여 주세요.</Text>
             </View>
-            <Button
-              title = 'Go detail screen'
-              onPress = {()=>this.props.navigation.navigate('Details')}/>
-        </View>        
-      </LinearGradient> 
-    );
-  };
-  
-  /*
-
-  componentWillUnmount() {
-    console.log('2')
-    NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
-    NfcManager.unregisterTagEvent().catch(() => 0);
-  }*/
-
-  async NFC() {
-    /*console.log('nfc start');
-    try {
-      // register for the NFC tag with NDEF in it
-      await NfcManager.requestTechnology(NfcTech.Ndef);
-      // the resolved tag object will contain `ndefMessage` property
-      const tag = await NfcManager.getTag();
-      let parsed = null;
-      console.log(tag.ndefMessage);
-      if (tag.ndefMessage) {
-          const ndefRecords = tag.ndefMessage;
-
-          function decodeNdefRecord(record) {
-              if (Ndef.isType(record, Ndef.TNF_WELL_KNOWN, Ndef.RTD_TEXT)) {
-                  return ['text', Ndef.text.decodePayload(record.payload)];
-              } else if (Ndef.isType(record, Ndef.TNF_WELL_KNOWN, Ndef.RTD_URI)) {
-                  return ['uri', Ndef.uri.decodePayload(record.payload)];
-              }
-
-              return ['unknown', '---']
-          }
-
-          parsed = ndefRecords.map(decodeNdefRecord);
-          console.warn('data found', parsed);
-      }
-      else {
-        console.warn('none data..');
-      }
-    } catch (ex) {
-      console.warn('Oops!', ex);
-    } finally {
-      NfcManager.cancelTechnologyRequest();
-    }
-  }*/
-
-  }
-}
-
-class DetailsScreen extends React.Component {
-  render() {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Seonoh Detail Screen</Text>
-        <Button
-          title = 'Go Home screen'
-          onPress = {()=>this.props.navigation.navigate('Home')}/>
+          </View>
+          <Button 
+            title = '식품 리스트'
+            onPress={() =>
+              navigation.navigate('Details', {food: {foodList}})
+            }
+          />     
       </View>
-    );
-  }
+  );
 }
 
+function DetailsScreen( {route, navigation} ) {
+  const { food } = route.params;
 
+  return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Text>{JSON.stringify(food)}</Text>
+        <Button title = 'Home' onPress = {() => {navigation.navigate('Home')}} />
+      </View>
+  );
+}
+
+const Screen = createStackNavigator();
+
+const App = () => {
+  return (
+    <NavigationContainer>
+      <Screen.Navigator>
+        <Screen.Screen 
+          name="Home" 
+          component={HomeScreen} 
+          options = {{
+            title : 'Home',
+            headerStyle : {
+              backgroundColor :'#ffffff',
+            }
+          }}
+        />
+        <Screen.Screen 
+          name="Details" 
+          component={DetailsScreen}
+          options = {{
+            title : 'Food List',
+            headerStyle : {
+              backgroundColor :'#ffffff',
+            }
+          }} 
+        />
+      </Screen.Navigator>
+    </NavigationContainer>
+  );
+
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFD2CC',
+    backgroundColor: 'white',
     alignItems:'stretch',
     justifyContent: 'center',
   },
@@ -639,18 +568,11 @@ const styles = StyleSheet.create({
     color: "white",
     justifyContent: "center",
     alignItems: "center"
-  }
-});
+  },
+  listOfFood : {
 
-const AppNavigator = createStackNavigator(
-  {
-    Home: HomeScreen,
-    Details: DetailsScreen
-  },
-  {
-    initialRouteName: 'Home',
-    headerShown: false,
-  },
-);
+  }
+
+});
  
-export default createAppContainer(AppNavigator);
+export default App;

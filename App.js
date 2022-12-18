@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, Vibration, Alert, TouchableOpacity, FlatList, Button } from 'react-native';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LinearGradient } from 'expo-linear-gradient';
 import NfcManager, {NfcTech, Ndef} from 'react-native-nfc-manager';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -145,7 +144,7 @@ function HomeScreen( {navigation} ){
     }
   }
   return (
-      <LinearGradient colors={['#FFAC9B', '#FFC7BF', '#FFD4CE']} style={styles.container}>
+      <View style={styles.container}>
           <TouchableOpacity style={styles.button}
                  onPress={() => {
                   this.nfcRead();
@@ -470,7 +469,7 @@ function HomeScreen( {navigation} ){
               navigation.navigate('Details', {food: {foodList}})
             }
           />     
-      </LinearGradient> 
+      </View>
   );
 }
 
@@ -491,8 +490,26 @@ const App = () => {
   return (
     <NavigationContainer>
       <Screen.Navigator>
-        <Screen.Screen name="Home" component={HomeScreen} />
-        <Screen.Screen name="Details" component={DetailsScreen} />
+        <Screen.Screen 
+          name="Home" 
+          component={HomeScreen} 
+          options = {{
+            title : 'Home',
+            headerStyle : {
+              backgroundColor :'#ffffff',
+            }
+          }}
+        />
+        <Screen.Screen 
+          name="Details" 
+          component={DetailsScreen}
+          options = {{
+            title : 'Food List',
+            headerStyle : {
+              backgroundColor :'#ffffff',
+            }
+          }} 
+        />
       </Screen.Navigator>
     </NavigationContainer>
   );
@@ -502,7 +519,7 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFD2CC',
+    backgroundColor: 'white',
     alignItems:'stretch',
     justifyContent: 'center',
   },
