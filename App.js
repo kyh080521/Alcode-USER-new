@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, Vibration, Alert, TouchableOpacity, FlatList, Button } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Vibration, Alert, TouchableOpacity, Button } from 'react-native';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NfcManager, {NfcTech, Ndef} from 'react-native-nfc-manager';
@@ -7,7 +7,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 function HomeScreen( {navigation} ){
-  const [foodList, setFoodList] = useState(['ii']);
+  const [foodList, setFoodList] = useState(['']);
 
   state = {
     "egg" : false,
@@ -46,7 +46,7 @@ function HomeScreen( {navigation} ){
   }
   nfcRead = async () => {
     try {
-      Alert.alert("NFC 리딩중...");
+      Alert.alert("NFC Loading...");
       await NfcManager.requestTechnology(NfcTech.Ndef);
       const tag = await NfcManager.getTag();
       const parsed = tag.ndefMessage.map(decodeNdefRecord);
@@ -69,70 +69,70 @@ function HomeScreen( {navigation} ){
         for (var allergy of alles) {
           console.log(allergy);
           if (allergy=="계란" && this.state.egg==true) {
-            warn.push("계란이 "+food+"에서 검출되었어요!")
+            warn.push("Egg is detected in the" + food)
           }
           if (allergy=="밀" && this.state.mil==true) {
-            warn.push("밀이 "+food+"에서 검출되었어요!")
+            warn.push("Wheat is detected in the" + food)
           }
           if (allergy=="우유" && this.state.milk==true) {
-            warn.push("우유가 "+food+"에서 검출되었어요!")
+            warn.push("Milk is detected in the" + food)
           }
           if (allergy=="닭고기" && this.state.chi==true) {
-            warn.push("닭고기가 "+food+"에서 검출되었어요!")
+            warn.push("Chicken is detected in the" + food)
           }
           if (allergy=="쇠고기" && this.state.cow==true) {
-            warn.push("쇠고기가 "+food+"에서 검출되었어요!")
+            warn.push("Beef is detected in the" + food)
           }
           if (allergy=="새우" && this.state.sae==true) {
-            warn.push("새우가 "+food+"에서 검출되었어요!")
+            warn.push("Shrimf is detected in the" + food)
           }
           if (allergy=="대두" && this.state.big==true) {
-            warn.push("대두가 "+food+"에서 검출되었어요!")
+            warn.push("Soybean is detected in the" + food)
           }
           if (allergy=="돼지고기" && this.state.pig==true) {
-            warn.push("돼지고기가 "+food+"에서 검출되었어요!")
+            warn.push("Pork is detected in the" + food)
           }
           if (allergy=="복숭아" && this.state.peach==true) {
-            warn.push("복숭아가 "+food+"에서 검출되었어요!")
+            warn.push("Peach is detected in the" + food)
           }
           if (allergy=="토마토" && this.state.tomato==true) {
-            warn.push("토마토가 "+food+"에서 검출되었어요!")
+            warn.push("Tomato is detected in the" + food)
           }
           if (allergy=="게" && this.state.gae==true) {
-            warn.push("게가 "+food+"에서 검출되었어요!")
+            warn.push("Crab is detected in the" + food)
           }
           if (allergy=="고등어" && this.state.high==true) {
-            warn.push("고등어가 "+food+"에서 검출되었어요!")
+            warn.push("Mackerel is detected in the" + food)
           }
           if (allergy=="조개류" && this.state.jo==true) {
-            warn.push("조개류 "+food+"에서 검출되었어요!")
+            warn.push("Shellfish is detected in the" + food)
           }
           if (allergy=="오징어" && this.state.squid==true) {
-            warn.push("오징어가 "+food+"에서 검출되었어요!")
+            warn.push("Squid is detected in the" + food)
           }
           if (allergy=="잣" && this.state.jat==true) {
-            warn.push("잣이 "+food+"에서 검출되었어요!")
+            warn.push("Pine nut is detected in the" + food)
           }
           if (allergy=="아황산" && this.state.wine==true) {
-            warn.push("아황산류가 "+food+"에서 검출되었어요!")
+            warn.push("Sulfurous acid is detected in the" + food)
           }
           if (allergy=="호두" && this.state.brainnut==true) {
-            warn.push("호두가 "+food+"에서 검출되었어요!")
+            warn.push("Walnut is detected in the" + food)
           }
           if (allergy=="메밀" && this.state.memil==true) {
-            warn.push("메밀이 "+food+"에서 검출되었어요!")
+            warn.push("Buckwheat is detected in the" + food)
           }
           if (allergy=="땅콩" && this.state.nut==true) {
-            warn.push("땅콩이 "+food+"에서 검출되었어요!")
+            warn.push("Peanut is detected in the" + food)
           }
         }
       }
       warn.sort();
       if(warn.length==0) {
-        Alert.alert("알레르기 식품이 없습니다! :)");
+        Alert.alert("None allergy :)");
       }
       else {
-        Alert.alert("알레르기 검출!",warn.join("\n\n"));
+        Alert.alert("Allergy Detection",warn.join("\n\n"));
       }
       Vibration.vibrate(400);
       NfcManager.cancelTechnologyRequest().catch(() => 0);
@@ -157,7 +157,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="난류"
+                text="Egg"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -174,7 +174,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="소고기"
+                text="Beef"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -190,7 +190,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="돼지고기"
+                text="Pork"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -206,7 +206,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="닭고기"
+                text="Chicken"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -222,7 +222,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="새우"
+                text="Shrimp"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -238,7 +238,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="게"
+                text="Crab"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -254,7 +254,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="오징어"
+                text="Squid"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -270,7 +270,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="고등어"
+                text="Mackerel"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -286,7 +286,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="조개류"
+                text="Shellfish"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -302,7 +302,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="우유"
+                text="Milk"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -318,7 +318,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="땅콩"
+                text="Peanut"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -334,7 +334,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="호두"
+                text="Walnut"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -350,7 +350,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="잣"
+                text="Pine nut"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -366,7 +366,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="대두"
+                text="Soybean"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -382,7 +382,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="토마토"
+                text="Tomato"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -398,7 +398,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="복숭아"
+                text="Peach"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -414,7 +414,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="밀"
+                text="Wheat"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -430,7 +430,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="메밀"
+                text="Buckwheat"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -446,7 +446,7 @@ function HomeScreen( {navigation} ){
                 size={35}
                 style={{ marginTop: 16 }}
                 fillColor="pink"
-                text="아황산류"
+                text="Sulfurous acid"
                 iconStyle={{ borderColor: "pink" }}
                 textStyle={{
                   textDecorationLine: "none",
@@ -460,11 +460,11 @@ function HomeScreen( {navigation} ){
               />
             </ScrollView>
             <View style={styles.banner}>
-              <Text style={{fontSize:19, fontWeight:'bold', color:'#FFEFEF'}}>{"\n"}당신의 알레르기 정보를 입력하여 주세요.</Text>
+              <Text style={{fontSize:19, fontWeight:'bold', color:'#FFEFEF'}}>{'\n'}Please enter your allergy information'</Text>
             </View>
           </View>
           <Button 
-            title = '식품 리스트'
+            title = 'Food List'
             onPress={() =>
               navigation.navigate('Details', {food: {foodList}})
             }
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
     borderRadius: 20,
     backgroundColor: '#FFF6F4',
-    shadowColor: 'rgba(0, 0, 0, 0.1)',
+    shadowColor: rgba(0, 0, 0, 0.1),
     shadowOpacity: 0.8,
     elevation: 20,
     shadowRadius: 15 ,
@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
     margin: 10,
     marginBottom: 5,
     height: 40,
-    shadowColor: 'rgba(0, 0, 0, 0.1)',
+    shadowColor: rgba(0, 0, 0, 0.1),
     shadowOpacity: 0.8,
     elevation: 12,
     shadowRadius: 15 ,
@@ -569,9 +569,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center"
   },
-  listOfFood : {
-
-  }
 
 });
  
