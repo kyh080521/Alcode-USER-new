@@ -8,8 +8,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Camera, CameraType, CameraScreen } from 'react-native-camera-kit';
 
-
-function HomeScreen( {navigation}){
+const HomeScreen = ( navigation) =>{
 
   state = {   
     "egg" : false,
@@ -465,35 +464,28 @@ function HomeScreen( {navigation}){
 };
   
 
-function QRcodeScanner({navigation}){
-  const {foodList, setFoodList} = useState([''])
-  const {scaned, setScaned} = useState<Boolean>(true);
-  const ref = useRef(null);
-  
-  useEffect(() => {
-    // 종료후 재시작을 했을때 초기화
-    setScaned(true);
-  }, []);
+const QRcodeScanner = (navigation) => {
+  const [foodList, setFoodList] = useState([''])
+  const [scaned, setScaned] = useState(true);
 
-  const onBarCodeRead = e =>{ 
+  const onBarCodeRead = (event) =>{ 
     if(!scaned) return;
     setScaned(false);
     Vibration.vibrate(400);
     Alert.alert("QR Code Recognition successful");
-    //정보 불러오기
     navigation.navigate('Home')
   }
 
   return (
     <View>
       <CameraScreen
-       // Barcode props
-       scanBarcode={true}
-       onReadCode={(event) => Alert.alert('QR code found')} // optional
-       showFrame={true} 
-       laserColor="red" 
-       frameColor="white" 
-      />
+          // Barcode props
+          scanBarcode={true}
+          onReadCode={(event) => Alert.alert('QR code found')} // optional
+          showFrame={true} 
+          laserColor="red" 
+          frameColor="white" 
+        />
     </View>
   );
 };
