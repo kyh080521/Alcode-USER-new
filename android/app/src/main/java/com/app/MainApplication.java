@@ -55,6 +55,21 @@ public class MainApplication extends Application implements ReactApplication {
       return mReactNativeHost;
     }
   }
+  @Override
+    protected List<ReactPackage> getPackages() {
+      return Arrays.<ReactPackage>asList(
+          new MainReactPackage(),
+            new AsyncStoragePackage(),
+            new RNFirebasePackage(),
+            new RNFirebaseFirestorePackage(),
+            new RNFirebaseLinksPackage(),
+            new RNFirebaseAuthPackage(),
+            new ReanimatedPackage(),
+            new RNGestureHandlerPackage(),
+            new RNScreensPackage(),
+            new SafeAreaContextPackage()
+      );
+    }
 
   @Override
   public void onCreate() {
@@ -104,3 +119,4 @@ public class MainApplication extends Application implements ReactApplication {
     }
   }
 }
+

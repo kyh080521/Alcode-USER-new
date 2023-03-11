@@ -39,7 +39,7 @@ MainComponentsRegistry::initHybrid(
     auto mutableRegistry =
         std::const_pointer_cast<ComponentDescriptorRegistry>(registry);
 
-    mutableRegistry->setFallbackComponentDescriptor(
+    mutableRegistry->setFallbaomponentDescriptor(
         std::make_shared<UnimplementedNativeViewComponentDescriptor>(
             ComponentDescriptorParameters{
                 eventDispatcher, contextContainer, nullptr}));
